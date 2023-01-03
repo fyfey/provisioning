@@ -1,10 +1,12 @@
 ---
 - hosts: users
   become: yes
+
   vars_prompt:
-   - name: "new_user"
-     prompt: "Account need to be create in remote server."
-     private: no
+    - name: "new_user"
+      prompt: "Account need to be create in remote server."
+      private: no
+
   tasks:
     - name: creating the user {{ new_user }}.
       user:
@@ -12,127 +14,29 @@
         createhome: yes
         shell: /bin/bash
         append: yes
-        state: present  
+        state: present
+
     - name: Create a dedicated sudo entry file for the user.
       file:
         path: "/etc/sudoers.d/{{ new_user }}"
         state: touch
-        mode: '0600'
+        mode: "0600"
+
     - name: "Setting up Sudo without Password for user {{ new_user }}."
       lineinfile:
         dest: "/etc/sudoers.d/{{ new_user }}"
-        line: '{{ new_user }}  ALL=(ALL) NOPASSWD: ALL'
-        validate: 'visudo -cf %s'
+        line: "{{ new_user }}  ALL=(ALL) NOPASSWD: ALL"
+        validate: "visudo -cf %s"
+
     - name: Set authorized key for user copying it from current {{ new_user }}  user.
       authorized_key:
-         user: "{{ new_user }}"
-         state: present
-         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+        user: "{{ new_user }}"
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
     - name: Print the created user.
       shell: id "{{ new_user }}"
       register: new_user_created
+
     - debug:
         msg: "{{ new_user_created.stdout_lines[0] }}"
-...
-Save the above YAML in a cat and run as follow.
-
-$ ansible-playbook cretae_user.yaml -k -K
-The playbook will manage to create the account, adding a SUDO entry with no password to root and copying the SSH authorized key from the Ansible host to remote servers.
-
-TASK [debug] ******************************************************************************************************
-ok: [k8mas1.linuxsysadmins.local] => {
-    "msg": "uid=1011(ansibleuser1) gid=1011(ansibleuser1) groups=1011(ansibleuser1)"
-}
-ok: [k8nod1.linuxsysadmins.local] => {
-    "msg": "uid=1011(ansibleuser1) gid=1011(ansibleuser1) groups=1011(ansibleuser1)"
-}
-ok: [k8nod2.linuxsysadmins.local] => {
-    "msg": "uid=1011(ansibleuser1) gid=1011(ansibleuser1) groups=1011(ansibleuser1)"
-}
-
-PLAY RECAP ********************************************************************************************************
-k8mas1.linuxsysadmins.local : ok=7    changed=5    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-k8nod1.linuxsysadmins.local : ok=7    changed=5    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-k8nod2.linuxsysadmins.local : ok=7    changed=5    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-
-[ansible@gateway ~]$ 
-Install Kubernetes & Docker Packages.
-Right after creating the user start with installing and configuring required packages on all the master and worker nodes. Additionally, disabling the swap, resolving dependencies are included as well. At the end of the installation, it will reboot all the nodes.
-
----
-- hosts: "masters, workers"
-  remote_user: ansible
-  become: yes
-  become_method: sudo
-  become_user: root
-  gather_facts: yes
-  connection: ssh
-  
-  tasks:
-   
-   - name: Make the Swap inactive
-     command: swapoff -a
-   - name: Remove Swap entry from /etc/fstab.
-     lineinfile:
-       dest: /etc/fstab
-       regexp: swap
-       state: absent
-   - name: Installing Prerequisites for Kubernetes
-     apt: 
-       name:
-         - apt-transport-https
-         - ca-certificates
-         - curl
-         - gnupg-agent
-         - vim
-         - software-properties-common
-       state: present
-   - name: Add Docker’s official GPG key
-     apt_key:
-       url: https://download.docker.com/linux/ubuntu/gpg
-       state: present
-   - name: Add Docker Repository
-     apt_repository:
-       repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
-       state: present
-       filename: docker
-       mode: 0600
-   - name: Install Docker Engine.
-     apt: 
-       name:
-         - docker-ce
-         - docker-ce-cli
-         - containerd.io
-       state: present
-   - name: Enable service docker, and enable persistently
-     service: 
-       name: docker
-       enabled: yes
-   - name: Add Google official GPG key
-     apt_key:
-       url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-       state: present
-   - name: Add Kubernetes Repository
-     apt_repository:
-       repo: deb http://apt.kubernetes.io/ kubernetes-xenial main 
-       state: present
-       filename: kubernetes
-       mode: 0600
-   - name: Installing Kubernetes Cluster Packages.
-     apt: 
-       name:
-         - kubeadm
-         - kubectl
-         - kubelet
-       state: present
-   - name: Enable service kubelet, and enable persistently
-     service: 
-       name: kubelet
-       enabled: yes
-   - name: Reboot all the kubernetes nodes.
-     reboot:
-       post_reboot_delay: 10
-       reboot_timeout: 40
-       connect_timeout: 60
-       test_command: uptime
-...

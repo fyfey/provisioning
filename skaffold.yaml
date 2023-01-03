@@ -1,0 +1,12 @@
+apiVersion: skaffold/v4beta2 latest
+kind: Config
+metadata:
+  name: kubernetes
+
+build:
+  artifacts: []
+
+deploy:
+  kubectl:
+    remoteManifests:
+      - "https://docs.projectcalico.org/v3.16/manifests/calico.yaml"
