@@ -1,0 +1,16 @@
+masters:
+  hosts: &masters
+    kube00:
+      ansible_host: kube00
+
+workers:
+  hosts: &workers
+    kube01:
+      ansible_host: kube01
+    kube02:
+      ansible_host: kube02
+
+users:
+  hosts:
+    <<: *masters
+    <<: *workers

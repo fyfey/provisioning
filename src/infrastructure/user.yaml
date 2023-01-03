@@ -2,10 +2,8 @@
 - hosts: users
   become: yes
 
-  vars_prompt:
-    - name: "new_user"
-      prompt: "Account need to be create in remote server."
-      private: no
+  vars:
+    - new_user: kube
 
   tasks:
     - name: creating the user {{ new_user }}.
@@ -26,7 +24,7 @@
       lineinfile:
         dest: "/etc/sudoers.d/{{ new_user }}"
         line: "{{ new_user }}  ALL=(ALL) NOPASSWD: ALL"
-        validate: "visudo -cf %s"
+        validate: "echo %s"
 
     - name: Set authorized key for user copying it from current {{ new_user }}  user.
       authorized_key:

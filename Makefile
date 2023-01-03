@@ -8,6 +8,6 @@ bootstrap:
 
 .PHONY: provision
 provision:
-	ansible 
+	./src/bin/provision
 
 deploy: provision boostrap

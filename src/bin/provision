@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+if [ -z $ANSIBLE_USER ]; then
+    echo  "ANSIBLE_USER is not set"
+    exit 1
+fi
+
+ansible-playbook -u "$ANSIBLE_USER" \
+    -i inventory.yaml \
+    --become-user=root \
+    --ask-become-pass \
+    --become-method=su \
+    ./src/infrastructure/user.yaml
+
+ansible-playbook -u "$ANSIBLE_USER" \
+    -i inventory.yaml \
+    --ask-become-pass \
+    ./src/infrastructure/kubernetes.yaml

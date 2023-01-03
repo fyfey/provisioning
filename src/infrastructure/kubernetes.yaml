@@ -1,6 +1,5 @@
 ---
 - hosts: "masters, workers"
-  remote_user: ansible
   become: yes
   become_method: sudo
   become_user: root
@@ -26,6 +25,7 @@
           - gnupg-agent
           - vim
           - software-properties-common
+        update_cache: true
         state: present
 
     - name: Add Docker’s official GPG key
