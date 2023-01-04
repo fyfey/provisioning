@@ -1,0 +1,13 @@
+---
+- hosts: masters
+  become: yes
+  become_method: sudo
+  become_user: root
+  gather_facts: yes
+  connection: ssh
+
+  tasks:
+    - name: Teardown kube config
+      file:
+        path: /etc/kubernetes
+        state: absent

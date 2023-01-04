@@ -18,3 +18,5 @@ ansible-playbook -u "$ANSIBLE_USER" \
     -i inventory.yaml \
     --ask-become-pass \
     ./src/infrastructure/kubernetes.yaml
+
+ansible-playbook -u "$ANSIBLE_USER"  -i inventory.yaml --ask-become-pass ./src/infrastructure/network.yaml

@@ -10,4 +10,8 @@ bootstrap:
 provision:
 	./src/bin/provision
 
+.PHONY: teardown
+teardown:
+	./src/bin/teardown
+
 deploy: provision boostrap

@@ -1,33 +1,21 @@
 ---
 - hosts: masters
-  remote_user: ansible
   become: yes
   become_method: sudo
   become_user: root
   gather_facts: yes
   connection: ssh
 
-  vars_prompt:
-    - name: "pod_network_cidr"
-      prompt: "Enter the Pod Network CIDR, example: 192.168.100.0/24"
-      private: no
-
-    - name: "k8s_master_ip"
-      prompt: "Enter the Apiserver advertise address, example: 192.168.0.26"
-      private: no
-
-    - name: "pod_network_manifest_file"
-      prompt: "Enter the Pod network manifest file URL, Your choice could be flannel, weave or calico, etc."
-      private: no
-
-    - name: "rbac_manifest_file"
-      prompt: "Enter the RBAC manifest file URL"
-      private: no
+  vars:
+    pod_network_cidr: 192.168.100.0/24
+    k8s_master_ip: 192.168.100.209
+    pod_network_manifest_file: https://docs.projectcalico.org/v3.16/manifests/calico.yaml
+    rbac_manifest_file: https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
 
   tasks:
     - name: Intilizing Kubernetes Cluster
-      command: kubeadm init --pod-network-cidr "{{ pod_network_cidr }}"  --apiserver-advertise-address "{{ k8s_master_ip }}"
-      run_once: true
+      command: kubeadm init --ignore-preflight-errors=Mem --pod-network-cidr "{{ pod_network_cidr }}"  --apiserver-advertise-address "{{ k8s_master_ip }}"
+      # run_once: true
       delegate_to: "{{ k8s_master_ip }}"
 
     - pause: seconds=30
