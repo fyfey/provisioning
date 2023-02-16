@@ -1,0 +1,11 @@
+---
+- name: Copy custom resources file
+  ansible.builtin.template:
+    src: assets/kube-flannel.yaml
+    dest: /tmp/kube-flannel.yaml
+
+- name: Create Pod Network
+  become_user: ansible
+  shell: kubectl apply -f /tmp/kube-flannel.yaml
+
+- pause: seconds=10

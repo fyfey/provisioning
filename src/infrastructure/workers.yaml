@@ -8,6 +8,16 @@
   connection: ssh
 
   tasks:
+    - name: ensures /run/flannel dir exists
+      file:
+        path: /run/flannel
+        state: directory
+
+    - name: Copy subnet.env to workers
+      ansible.builtin.template:
+        src: assets/subnet.env
+        dest: /run/flannel/subnet.env
+
     - name: Copy join command to worker nodes.
       become: yes
       become_method: sudo
@@ -27,6 +37,8 @@
     - debug:
         msg: "{{ joined_or_not.stdout }}"
 
+    - pause: seconds=30
+
 - hosts: masters
   remote_user: ansible
   become: yes
@@ -41,3 +53,11 @@
         dest: /home/{{ ansible_user }}/.bashrc
         line: "source <(kubectl completion bash)"
         insertafter: EOF
+
+- hosts: masters[0]
+
+  tasks:
+    - name: Update pod CIDR on worker nodes (for some reason this needs doing?)
+      shell: kubectl patch node {{ item }} -p '{"spec":{"podCIDR":"{{ lookup('env', 'POD_NETWORK_CIDR') }}"}}'
+      with_inventory_hostnames:
+        - all:!masters

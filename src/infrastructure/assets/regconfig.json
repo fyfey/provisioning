@@ -1,0 +1,14 @@
+{
+  "auths": {
+    "docker.fyfe.io": {
+      "auth": "{{ (lookup('env', 'REGISTRY_USERNAME') + ':' + lookup('env', 'REGISTRY_PASSWORD')) | b64encode }}"
+    },
+    "https://docker.fyfe.io": {
+      "auth": "{{ (lookup('env', 'REGISTRY_USERNAME') + ':' + lookup('env', 'REGISTRY_PASSWORD')) | b64encode }}",
+      "httpasswd": "{{ (lookup('env', 'REGISTRY_USERNAME') + ':' + lookup('env', 'REGISTRY_PASSWORD') | password_hash("blowfish") | regex_replace('\\$2b\\$', '$2y$') ) | b64encode }}"
+    }
+  },
+  "HttpHeaders": {
+    "User-Agent": "Docker-Client/18.09.4 (linux)"
+  }
+}

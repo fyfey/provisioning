@@ -2,9 +2,9 @@
 
 set -e
 
-if [ -z $ANSIBLE_USER ]; then
-    echo  "ANSIBLE_USER is not set"
-    exit 1
-fi
+# if [ -z $ANSIBLE_USER ]; then
+#     echo  "ANSIBLE_USER is not set"
+#     exit 1
+# fi
 
-ansible-playbook -u "$ANSIBLE_USER" -i inventory.yaml --ask-become-pass ./src/infrastructure/teardown.yaml
+ansible-playbook -i inventory.yaml ./src/infrastructure/teardown.yaml

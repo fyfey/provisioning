@@ -1,0 +1,14 @@
+---
+- name: Copy custom resources file
+  ansible.builtin.template:
+    src: assets/calico-custom-resources.yaml
+    dest: /tmp/calico-custom-resources.yaml
+
+- name: Create Pod Network & RBAC.
+  become_user: ansible
+  become_method: sudo
+  become: yes
+  command: "{{ item }}"
+  with_items:
+    - kubectl create -f {{ lookup('env', 'POD_NETWORK_MANIFEST_FILE') }}
+    - kubectl create -f /tmp/calico-custom-resources.yaml

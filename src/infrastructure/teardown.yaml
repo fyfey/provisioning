@@ -1,5 +1,5 @@
 ---
-- hosts: masters
+- hosts: masters,workers
   become: yes
   become_method: sudo
   become_user: root
@@ -11,3 +11,23 @@
       file:
         path: /etc/kubernetes
         state: absent
+    - name: Teardown etcd
+      file:
+        path: /var/lib/etcd
+        state: absent
+    - name: Teardown cni
+      file:
+        path: /etc/cni/net.d
+        state: absent
+    - name: Reset kubeadm
+      shell: kubeadm reset -f
+    - name: Remove packages
+      apt:
+        state: absent
+        purge: true
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+          - containerd.io
+          - helm

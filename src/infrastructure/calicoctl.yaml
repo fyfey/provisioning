@@ -1,0 +1,20 @@
+- hosts: masters[0]
+  remote_user: ansible
+  gather_facts: yes
+  connection: ssh
+
+  tasks:
+    - name: Download calicoctl
+      shell: curl -L https://github.com/projectcalico/calico/releases/latest/download/calicoctl-linux-amd64 -o calicoctl
+    - name: Make it executable
+      shell: chmod +x calicoctl
+    - name: Make it executable
+      become_user: root
+      become_method: sudo
+      become: yes
+      shell: chmod +x calicoctl
+    - name: Move it to bin dir
+      become_user: root
+      become_method: sudo
+      become: yes
+      shell: mv calicoctl /usr/local/bin/calicoctl

@@ -1,0 +1,19 @@
+- hosts: masters[0]
+  remote_user: ansible
+  gather_facts: yes
+  connection: ssh
+
+  tasks:
+    - name: Install metallb helm repo
+      shell: helm repo add metallb https://metallb.github.io/metallb || exit 0
+
+    - name: Install metallb
+      shell: helm --namespace=metallb-system install metallb metallb/metallb --create-namespace --set spearker.enabled=false || exit 0
+
+    - name: Copy config map
+      template:
+        src: ./assets/metallb-config.yaml
+        dest: /tmp/metallb-config.yaml
+
+    - name: Apply config map
+      shell: kubectl apply -f /tmp/metallb-config.yaml

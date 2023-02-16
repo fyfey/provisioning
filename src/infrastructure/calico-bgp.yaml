@@ -1,0 +1,12 @@
+- hosts: masters[0]
+  remote_user: ansible
+  gather_facts: yes
+  connection: ssh
+
+  tasks:
+    - name: Copy bgp peer config
+      template:
+        src: assets/calico-bgppeer.yaml
+        dest: /tmp/calico-bgppeer.yaml
+    - name: Apply bgp peer config
+      shell: kubectl apply -f /tmp/calico-bgppeer.yaml

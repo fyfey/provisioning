@@ -1,0 +1,15 @@
+- hosts: masters[0]
+  remote_user: ansible
+  gather_facts: yes
+  connection: ssh
+
+  tasks:
+    # registry
+    - name: Copy registry manifests
+      ansible.builtin.template:
+        src: assets/registry.yml
+        dest: /tmp/registry.yml
+    - name: Apply registry manifests
+      ansible.builtin.shell:
+        chdir: /tmp
+        cmd: kubectl apply -f registry.yml

@@ -1,0 +1,41 @@
+---
+- hosts: masters[0]
+  remote_user: ansible
+  gather_facts: yes
+  connection: ssh
+
+  vars:
+    server_host: 192.168.1.2
+    host_path: /data/kube-smidge/
+    cert_manageer_version: 1.11.0
+
+  tasks:
+    # nfs-subdir-external-provisioner
+    - name: Add nfs-subdir-external-provisioner helm repo
+      shell: helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+    - name: Install nfs-subdir-external-provisioner helm chart
+      shell: helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server={{ server_host }} --set nfs.path={{ host_path }} --set storageClass.reclaimPolicy=Retain
+
+    # cert-manager
+    - name: Add cert-manager helm repo
+      shell: helm repo add jetstack https://charts.jetstack.io
+    - name: update
+      shell: helm repo update
+    - name: Install cert-manager helm chart
+      shell: helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v{{ cert_manageer_version }} --set installCRDs=true
+    - name: Copy staging issuer
+      ansible.builtin.template:
+        src: assets/issuer-staging.yaml
+        dest: /tmp/issuer-staging.yaml
+    - name: Install staging issuer
+      shell: kubectl apply -f /tmp/issuer-staging.yaml
+    - name: Copy prod issuer
+      ansible.builtin.template:
+        src: assets/issuer-prod.yaml
+        dest: /tmp/issuer-prod.yaml
+    - name: Install prod issuer
+      shell: kubectl apply -f /tmp/issuer-prod.yaml
+
+    # nginx-ingress
+    - name: Install nginx-ingress
+      shell: helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
