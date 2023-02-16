@@ -7,5 +7,12 @@ build:
   artifacts: []
 
 deploy:
-  kubectl:
-    remoteManifests: []
+  helm:
+    releases:
+      - name: dashy
+        namespace: dashy
+        createNamespace: true
+        chartPath: charts/dashy
+        valuesFiles:
+        - values/dashy/values.yaml
+
