@@ -8,15 +8,15 @@
   connection: ssh
 
   tasks:
-    - name: ensures /run/flannel dir exists
-      file:
-        path: /run/flannel
-        state: directory
+    # - name: ensures /run/flannel dir exists
+    #   file:
+    #     path: /run/flannel
+    #     state: directory
 
-    - name: Copy subnet.env to workers
-      ansible.builtin.template:
-        src: assets/subnet.env
-        dest: /run/flannel/subnet.env
+    # - name: Copy subnet.env to workers
+    #   ansible.builtin.template:
+    #     src: assets/subnet.env
+    #     dest: /run/flannel/subnet.env
 
     - name: Copy join command to worker nodes.
       become: yes
@@ -39,6 +39,15 @@
 
     - pause: seconds=30
 
+- hosts: workers
+  remote_user: ansible
+  connection: ssh
+
+  tasks:
+    - name: Update pod CIDR on worker nodes (for some reason this needs doing?)
+      delegate_to: "{{ groups['masters'][0] }}"
+      shell: kubectl patch node {{ ansible_host }} -p '{"spec":{"podCIDR":"{{ pod_cidr }}"}}'
+
 - hosts: masters
   remote_user: ansible
   become: yes
@@ -57,7 +66,5 @@
 - hosts: masters[0]
 
   tasks:
-    - name: Update pod CIDR on worker nodes (for some reason this needs doing?)
-      shell: kubectl patch node {{ item }} -p '{"spec":{"podCIDR":"{{ lookup('env', 'POD_NETWORK_CIDR') }}"}}'
-      with_inventory_hostnames:
-        - all:!masters
+    - name: Untaint master so it can run workloads
+      shell: kubectl taint nodes kube00 node-role.kubernetes.io/control-plane:NoSchedule-

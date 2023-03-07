@@ -19,6 +19,10 @@
       file:
         path: /etc/cni/net.d
         state: absent
+    - name: Remove interfaces
+      shell: |
+        ip link delete cni0 || exit 0
+        ip link delete flannel.1 || exit 0
     - name: Reset kubeadm
       shell: kubeadm reset -f
     - name: Remove packages

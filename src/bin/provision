@@ -18,11 +18,11 @@ ansible-playbook \
     -i inventory.yaml \
     ./src/infrastructure/workers.yaml
 
-ansible-playbook \
-    -i inventory.yaml \
-    ./src/infrastructure/helm.yaml
-
-ansible-playbook \
-    -i inventory.yaml \
-    ./src/infrastructure/registry.yaml
+# ansible-playbook \
+#     -i inventory.yaml \
+#     ./src/infrastructure/helm.yaml
+#
+# ansible-playbook \
+#     -i inventory.yaml \
+#     ./src/infrastructure/registry.yaml
 

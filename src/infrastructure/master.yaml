@@ -7,11 +7,11 @@
   connection: ssh
 
   vars:
-    k8s_master_ip: 192.168.100.209
+    k8s_master_ip: 192.168.1.5
 
   tasks:
     - name: Intislising Kubernetes Cluster
-      command: kubeadm init --pod-network-cidr "{{ lookup('env', 'POD_NETWORK_CIDR') }}" --apiserver-advertise-address "{{ k8s_master_ip }}"
+      command: kubeadm init --pod-network-cidr="{{ lookup('env', 'POD_NETWORK_CIDR') }}" --apiserver-advertise-address "{{ k8s_master_ip }}"
       # run_once: true
       delegate_to: kube00
       tags:

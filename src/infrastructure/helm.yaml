@@ -14,7 +14,11 @@
     - name: Add nfs-subdir-external-provisioner helm repo
       shell: helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
     - name: Install nfs-subdir-external-provisioner helm chart
-      shell: helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner --set nfs.server={{ server_host }} --set nfs.path={{ host_path }} --set storageClass.reclaimPolicy=Retain
+      shell:
+        helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+        --set nfs.server={{ server_host }} \
+        --set nfs.path={{ host_path }} \
+        --set storageClass.reclaimPolicy=Retain
 
     # cert-manager
     - name: Add cert-manager helm repo

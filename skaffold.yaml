@@ -1,4 +1,4 @@
-apiVersion: skaffold/v4beta2 latest
+apiVersion: skaffold/v4beta2
 kind: Config
 metadata:
   name: kubernetes
@@ -9,10 +9,26 @@ build:
 deploy:
   helm:
     releases:
+      - name: cert-manager
+        remoteChart: jetstack/cert-manager
+        createNamespace: true
+        namespace: cert-manager
+        setValues:
+          installCRDs: true
       - name: dashy
         namespace: dashy
         createNamespace: true
         chartPath: charts/dashy
         valuesFiles:
-        - values/dashy/values.yaml
-
+          - values/dashy/values.yaml
+      - name: nfs-provisioner
+        remoteChart: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+        setValues:
+          nfs.server: 192.168.1.2
+          nfs.path: /data/kube-smidge/
+      - name: ingress-controller
+        remoteChart: traefik/traefik
+      - name: metallb
+        namespace: metallb-system
+        createNamespace: true
+        remoteChart: metallb/metallb

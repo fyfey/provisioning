@@ -5,12 +5,12 @@ metadata:
   name: config
 data:
   config: |
-    # peers:
-    # - peer-address: 192.168.1.1
-    #   peer-asn: 64512
-    #   my-asn: 64512
+    peers:
+    - peer-address: 192.168.1.1
+      peer-asn: 64512
+      my-asn: 64512
     address-pools:
     - name: default
       protocol: bgp
       addresses:
-      - {{ lookup('env', 'BGP_POOL_CIRDR') }}
+      - 192.168.1.224/27

@@ -1,16 +1,13 @@
 masters:
-  hosts: &masters
+  hosts:
     kube00:
       ansible_host: kube00
 
 workers:
-  hosts: &workers
+  hosts:
     kube01:
       ansible_host: kube01
+      pod_cidr: 10.244.1.0/24
     kube02:
       ansible_host: kube02
-
-users:
-  hosts:
-    <<: *masters
-    <<: *workers
+      pod_cidr: 10.244.2.0/24
